@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>⚠️ VERSIÓN VULNERABLE - Cryptographic Failures Demo</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header vulnerable">
+            <div class="warning-banner">
+                <span class="warning-icon">⚠️</span>
+                <h1>VERSIÓN VULNERABLE</h1>
+                <span class="warning-icon">⚠️</span>
+            </div>
+            <p class="subtitle">A04:2025 - Cryptographic Failures Demo</p>
+            <div class="vulnerabilities-list">
+                <h3>Vulnerabilidades Activas:</h3>
+                <ul>
+                    <li>🔓 Contraseñas hasheadas con MD5</li>
+                    <li>🔓 Datos sensibles en texto plano</li>
+                    <li>🔓 Sin rate limiting</li>
+                    <li>🔓 Tokens de sesión predecibles</li>
+                    <li>🔓 Cookies sin protección</li>
+                    <li>🔓 Headers de seguridad ausentes</li>
+                </ul>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Session Info -->
+            <div id="sessionInfo" class="session-info hidden">
+                <h3>Sesión Activa</h3>
+                <p><strong>Usuario:</strong> <span id="currentUser"></span></p>
+                <p><strong>Token:</strong> <span id="currentToken" class="token"></span></p>
+                <button onclick="logout()" class="btn btn-secondary">Cerrar Sesión</button>
+            </div>
+
+            <!-- Tabs -->
+            <div class="tabs">
+                <button class="tab-button active" onclick="showTab('register', event)">Registro</button>
+                <button class="tab-button" onclick="showTab('login', event)">Login</button>
+                <button class="tab-button" onclick="showTab('profile', event)">Perfil</button>
+                <button class="tab-button" onclick="showTab('users', event)">Usuarios</button>
+                <button class="tab-button" onclick="showTab('debug', event)">🔍 Debug DB</button>
+            </div>
+
+            <!-- Register Tab -->
+            <div id="registerTab" class="tab-content active">
+                <h2>Registro de Usuario</h2>
+                <form onsubmit="register(event)">
+                    <div class="form-group">
+                        <label>Username:</label>
+                        <input type="text" id="regUsername" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Password:</label>
+                        <input type="password" id="regPassword" required>
+                        <small class="hint vulnerable-hint">⚠️ Acepta contraseñas débiles como "123"</small>
+                    </div>
+                    <div class="form-group">
+                        <label>Email:</label>
+                        <input type="email" id="regEmail" required>
+                    </div>
+                    <div class="form-group">
+                        <label>SSN (Número de Seguro Social):</label>
+                        <input type="text" id="regSSN" placeholder="XXX-XX-XXXX">
+                        <small class="hint vulnerable-hint">⚠️ Se almacena en texto plano</small>
+                    </div>
+                    <div class="form-group">
+                        <label>Tarjeta de Crédito:</label>
+                        <input type="text" id="regCard" placeholder="XXXX-XXXX-XXXX-XXXX">
+                        <small class="hint vulnerable-hint">⚠️ Se almacena en texto plano</small>
+                    </div>
+                    <div class="form-group">
+                        <label>Información Médica:</label>
+                        <textarea id="regMedical" rows="3"></textarea>
+                        <small class="hint vulnerable-hint">⚠️ Se almacena en texto plano</small>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Registrar</button>
+                </form>
+            </div>
+
+            <!-- Login Tab -->
+            <div id="loginTab" class="tab-content">
+                <h2>Iniciar Sesión</h2>
+                <form onsubmit="login(event)">
+                    <div class="form-group">
+                        <label>Username:</label>
+                        <input type="text" id="loginUsername" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Password:</label>
+                        <input type="password" id="loginPassword" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Iniciar Sesión</button>
+                </form>
+                <div class="info-box vulnerable">
+                    <h4>Prueba de Fuerza Bruta</h4>
+                    <p>Esta versión NO tiene rate limiting. Puedes intentar múltiples veces sin límite.</p>
+                    <button onclick="bruteForceTest()" class="btn btn-warning">
+                        Simular Ataque de Fuerza Bruta (10 intentos)
+                    </button>
+                </div>
+            </div>
+
+            <!-- Profile Tab -->
+            <div id="profileTab" class="tab-content">
+                <h2>Mi Perfil</h2>
+                <button onclick="getProfile()" class="btn btn-primary">Obtener Perfil</button>
+                <div id="profileResult" class="result-box"></div>
+            </div>
+
+            <!-- Users Tab -->
+            <div id="usersTab" class="tab-content">
+                <h2>Lista de Usuarios</h2>
+                <button onclick="getUsers()" class="btn btn-primary">Obtener Usuarios</button>
+                <div id="usersResult" class="result-box"></div>
+                <div class="info-box vulnerable">
+                    <p>⚠️ Este endpoint expone TODOS los datos de TODOS los usuarios, incluyendo:</p>
+                    <ul>
+                        <li>Hashes MD5 de contraseñas</li>
+                        <li>SSN en texto plano</li>
+                        <li>Tarjetas de crédito en texto plano</li>
+                        <li>Información médica en texto plano</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Debug Tab -->
+            <div id="debugTab" class="tab-content">
+                <h2>🔍 Debug: Base de Datos Completa</h2>
+                <div class="info-box vulnerable">
+                    <h4>⚠️ VULNERABILIDAD CRÍTICA</h4>
+                    <p>Este endpoint expone la base de datos COMPLETA sin autenticación.</p>
+                    <p>En producción, esto es un desastre de seguridad.</p>
+                </div>
+                <button onclick="getDatabase()" class="btn btn-danger">Ver Base de Datos Completa</button>
+                <div id="debugResult" class="result-box"></div>
+            </div>
+        </main>
+
+        <!-- Response Area -->
+        <div id="responseArea" class="response-area hidden">
+            <h3>Última Respuesta del Servidor</h3>
+            <pre id="responseContent"></pre>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

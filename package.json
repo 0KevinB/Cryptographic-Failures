@@ -1,0 +1,32 @@
+{
+  "name": "owasp-cryptographic-failures-demo",
+  "version": "1.0.0",
+  "description": "Demostración práctica de A04:2025 - Cryptographic Failures con versiones vulnerable y segura",
+  "main": "index.js",
+  "scripts": {
+    "start:vulnerable": "node vulnerable/server.js",
+    "start:secure": "node secure/server.js",
+    "init:db": "node scripts/initDatabase.js",
+    "test:vulnerable": "node scripts/testVulnerable.js",
+    "test:secure": "node scripts/testSecure.js"
+  },
+  "keywords": ["owasp", "security", "cryptography", "express", "mvc"],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "sqlite3": "^5.1.6",
+    "body-parser": "^1.20.2",
+    "cookie-parser": "^1.4.6",
+    "express-session": "^1.17.3",
+    "dotenv": "^16.3.1",
+    "bcrypt": "^5.1.1",
+    "helmet": "^7.1.0",
+    "express-rate-limit": "^7.1.5",
+    "validator": "^13.11.0",
+    "crypto": "^1.0.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2"
+  }
+}

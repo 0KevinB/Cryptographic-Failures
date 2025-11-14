@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>✓ VERSIÓN SEGURA - Cryptographic Failures Demo</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header secure">
+            <div class="secure-banner">
+                <span class="secure-icon">🔒</span>
+                <h1>VERSIÓN SEGURA</h1>
+                <span class="secure-icon">✓</span>
+            </div>
+            <p class="subtitle">A04:2025 - Implementación Segura contra Cryptographic Failures</p>
+            <div class="protections-list">
+                <h3>Protecciones Implementadas:</h3>
+                <ul>
+                    <li>✓ Contraseñas con bcrypt (12 rounds)</li>
+                    <li>✓ Datos sensibles cifrados (AES-256-GCM)</li>
+                    <li>✓ Rate limiting activo</li>
+                    <li>✓ Tokens criptográficamente seguros</li>
+                    <li>✓ Cookies con flags de seguridad</li>
+                    <li>✓ Headers de seguridad (Helmet)</li>
+                    <li>✓ Validación de contraseñas fuertes</li>
+                    <li>✓ Enmascaramiento de datos sensibles</li>
+                    <li>✓ Auditoría de accesos</li>
+                </ul>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Session Info -->
+            <div id="sessionInfo" class="session-info hidden">
+                <h3>🔒 Sesión Activa</h3>
+                <p><strong>Usuario:</strong> <span id="currentUser"></span></p>
+                <p><strong>Token:</strong> <span id="currentToken" class="token">●●●●●●●●●●●●●●●●</span></p>
+                <small>Token criptográficamente seguro (no mostrado por seguridad)</small>
+                <button onclick="logout()" class="btn btn-secondary">Cerrar Sesión</button>
+            </div>
+
+            <!-- Tabs -->
+            <div class="tabs">
+                <button class="tab-button active" onclick="showTab('register', event)">Registro</button>
+                <button class="tab-button" onclick="showTab('login', event)">Login</button>
+                <button class="tab-button" onclick="showTab('profile', event)">Perfil</button>
+                <button class="tab-button" onclick="showTab('sensitive', event)">Datos Sensibles</button>
+                <button class="tab-button" onclick="showTab('users', event)">Usuarios</button>
+            </div>
+
+            <!-- Register Tab -->
+            <div id="registerTab" class="tab-content active">
+                <h2>Registro de Usuario</h2>
+                <form onsubmit="register(event)">
+                    <div class="form-group">
+                        <label>Username:</label>
+                        <input type="text" id="regUsername" required minlength="3">
+                        <small class="hint">Mínimo 3 caracteres</small>
+                    </div>
+                    <div class="form-group">
+                        <label>Password:</label>
+                        <input type="password" id="regPassword" required>
+                        <small class="hint secure-hint">✓ Requisitos: Min 12 caracteres, mayúsculas, minúsculas, números y caracteres especiales (!@#$%^&*)</small>
+                        <div id="passwordStrength" class="password-strength"></div>
+                    </div>
+                    <div class="form-group">
+                        <label>Email:</label>
+                        <input type="email" id="regEmail" required>
+                    </div>
+                    <div class="form-group">
+                        <label>SSN (Número de Seguro Social):</label>
+                        <input type="text" id="regSSN" placeholder="XXX-XX-XXXX" pattern="\d{3}-\d{2}-\d{4}">
+                        <small class="hint secure-hint">✓ Se cifrará con AES-256-GCM antes de almacenar</small>
+                    </div>
+                    <div class="form-group">
+                        <label>Tarjeta de Crédito:</label>
+                        <input type="text" id="regCard" placeholder="4532123456789010 o 4532-1234-5678-9010">
+                        <small class="hint secure-hint">✓ Se cifrará con AES-256-GCM antes de almacenar</small>
+                    </div>
+                    <div class="form-group">
+                        <label>Información Médica:</label>
+                        <textarea id="regMedical" rows="3"></textarea>
+                        <small class="hint secure-hint">✓ Se cifrará con AES-256-GCM antes de almacenar</small>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Registrar</button>
+                </form>
+            </div>
+
+            <!-- Login Tab -->
+            <div id="loginTab" class="tab-content">
+                <h2>Iniciar Sesión</h2>
+                <form onsubmit="login(event)">
+                    <div class="form-group">
+                        <label>Username:</label>
+                        <input type="text" id="loginUsername" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Password:</label>
+                        <input type="password" id="loginPassword" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Iniciar Sesión</button>
+                </form>
+                <div class="info-box secure">
+                    <h4>🔒 Protecciones de Login</h4>
+                    <ul>
+                        <li><strong>Rate Limiting:</strong> Máximo 5 intentos cada 15 minutos</li>
+                        <li><strong>Bloqueo de cuenta:</strong> Cuenta bloqueada 15 minutos tras 5 intentos fallidos</li>
+                        <li><strong>Verificación segura:</strong> Usando bcrypt para comparar contraseñas</li>
+                        <li><strong>Auditoría:</strong> Todos los intentos se registran</li>
+                    </ul>
+                </div>
+                <div id="rateLimitInfo" class="info-box warning hidden">
+                    <h4>⚠️ Rate Limit Activado</h4>
+                    <p id="rateLimitMessage"></p>
+                </div>
+            </div>
+
+            <!-- Profile Tab -->
+            <div id="profileTab" class="tab-content">
+                <h2>Mi Perfil</h2>
+                <button onclick="getProfile()" class="btn btn-primary">Obtener Perfil</button>
+                <div id="profileResult" class="result-box"></div>
+                <div class="info-box secure">
+                    <h4>🔒 Protección de Datos</h4>
+                    <p>Los datos sensibles se muestran <strong>enmascarados</strong> por defecto.</p>
+                    <p>Solo se muestran los últimos 4 dígitos de SSN y tarjeta de crédito.</p>
+                    <p>Para ver los datos completos, usa la pestaña "Datos Sensibles" y reauténticate.</p>
+                </div>
+            </div>
+
+            <!-- Sensitive Data Tab -->
+            <div id="sensitiveTab" class="tab-content">
+                <h2>🔐 Acceso a Datos Sensibles Completos</h2>
+                <div class="info-box warning">
+                    <h4>⚠️ Reautenticación Requerida</h4>
+                    <p>Para acceder a tus datos sensibles completos, debes confirmar tu identidad ingresando tu contraseña.</p>
+                    <p>Este acceso quedará registrado en el log de auditoría.</p>
+                </div>
+                <form onsubmit="getSensitiveData(event)">
+                    <div class="form-group">
+                        <label>Confirma tu contraseña:</label>
+                        <input type="password" id="sensitivePassword" required>
+                    </div>
+                    <button type="submit" class="btn btn-warning">Acceder a Datos Completos</button>
+                </form>
+                <div id="sensitiveResult" class="result-box"></div>
+            </div>
+
+            <!-- Users Tab -->
+            <div id="usersTab" class="tab-content">
+                <h2>Lista de Usuarios</h2>
+                <button onclick="getUsers()" class="btn btn-primary">Obtener Usuarios</button>
+                <div id="usersResult" class="result-box"></div>
+                <div class="info-box secure">
+                    <h4>✓ Protección de Privacidad</h4>
+                    <p>Este endpoint solo muestra información pública de los usuarios:</p>
+                    <ul>
+                        <li>ID</li>
+                        <li>Username</li>
+                        <li>Email</li>
+                        <li>Fecha de creación</li>
+                    </ul>
+                    <p><strong>NO se exponen:</strong> Contraseñas, SSN, tarjetas de crédito ni información médica.</p>
+                </div>
+            </div>
+        </main>
+
+        <!-- Response Area -->
+        <div id="responseArea" class="response-area hidden">
+            <h3>Última Respuesta del Servidor</h3>
+            <pre id="responseContent"></pre>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
